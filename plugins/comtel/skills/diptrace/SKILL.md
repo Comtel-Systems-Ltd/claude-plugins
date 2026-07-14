@@ -1,6 +1,6 @@
 ---
 name: diptrace
-description: Read DipTrace schematics (netlist, connectivity, part values) from ASCII (.asc) or plugin XML exports. Use when the user shares a DipTrace schematic file (.dch, .asc, exchange .xml), asks what is connected to a net/pin/rail, or asks hardware questions that need the schematic (power rails, pullups, pin assignments).
+description: Read DipTrace schematics (netlist, connectivity, part values) via KiCad netlist (.net) exports, with parsers for ASCII (.asc) and DipTrace XML. Use when the user shares a DipTrace file (.dch, .net, .asc, exchange .xml), asks what is connected to a net/pin/rail, or asks hardware questions that need the schematic (power rails, pullups, pin assignments, part values).
 ---
 
 # Reading DipTrace Schematics
@@ -26,10 +26,10 @@ Fallback: **File → Export → DipTrace ASCII...** produces a `.asc`.
 
 ## Parsing
 
-`.net` (KiCad) needs no parsing — Read/Grep it directly. For a `.asc` ASCII export or a plugin exchange XML, run the parser next to this skill:
+`.net` (KiCad) needs no parsing — Read/Grep it directly. For a `.asc` ASCII export or a plugin exchange XML, run `parse-diptrace.ps1` from **this skill's base directory** (shown when the skill loads — do not assume `~/.claude/skills`; plugin installs live in a cache path):
 
 ```powershell
-& "$env:USERPROFILE\.claude\skills\diptrace\parse-diptrace.ps1" -In "<export file>" -Out "<scratchpad>\netmap.txt"
+& "<skill-base-dir>\parse-diptrace.ps1" -In "<export file>" -Out "<scratchpad>\netmap.txt"
 ```
 
 Auto-detects `.asc` vs XML. Output format (same as the plugin's `.netlist`):
@@ -55,4 +55,4 @@ NET[0] +3V1: C1.1(0.1u) U1.7[VDD](PIC18F57K42) U2.8[VDD](FM25V05) ...
 
 ## PCB layouts
 
-Same plugin mechanism exists for PCB (`Plugins\Pcb\`, settings `Type="DipTrace_Pcb_Plugin"`, spec `DipTraceXML_Pcb_En.pdf`). Not set up yet — clone the ExportForClaude folder and adjust settings.xml if layout data is ever needed.
+`.dip` layout files are binary, like `.dch` — not readable. DipTrace's plugin mechanism exists for PCB too (`Plugins\Pcb\`, settings `Type="DipTrace_Pcb_Plugin"`, spec `DipTraceXML_Pcb_En.pdf`); rebuild from `plugin-archive/` and adjust settings.xml if layout data is ever needed. For placement/routing questions, a PDF export of the board is usually the pragmatic answer.
