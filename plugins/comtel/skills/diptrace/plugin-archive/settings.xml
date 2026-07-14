@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Source Type="DipTrace_Schematic_Plugin" Name="Export XML for Claude" ExeFile="ExportForClaude.exe">
+	<Settings>
+		<!-- Export mode -->
+		<ExpMode>All</ExpMode>
+		<!-- Import mode -->
+		<ImpMode>None</ImpMode>
+		<!-- Object settings (ignored with ExpMode=All, kept for clarity) -->
+		<Comp>All</Comp>
+		<Net>All</Net>
+		<Shape>None</Shape>
+		<Table>None</Table>
+		<Bus>All</Bus>
+		<BusConnectors>All</BusConnectors>
+		<Dim>None</Dim>
+		<Diff>None</Diff>
+		<Patterns>No</Patterns>
+		<Stamp>No</Stamp>
+	</Settings>
+</Source>

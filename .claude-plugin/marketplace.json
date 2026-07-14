@@ -1,0 +1,13 @@
+{
+  "name": "comtel-systems",
+  "owner": {
+    "name": "Comtel Systems Ltd."
+  },
+  "plugins": [
+    {
+      "name": "comtel",
+      "source": "./plugins/comtel",
+      "description": "Comtel Systems engineering skills: DipTrace schematic reading, hardware workflows."
+    }
+  ]
+}

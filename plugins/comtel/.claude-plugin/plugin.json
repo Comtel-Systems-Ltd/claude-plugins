@@ -1,0 +1,7 @@
+{
+  "name": "comtel",
+  "description": "Comtel Systems engineering skills. Currently: diptrace (read DipTrace schematics via KiCad netlist exports).",
+  "author": {
+    "name": "Comtel Systems Ltd."
+  }
+}
