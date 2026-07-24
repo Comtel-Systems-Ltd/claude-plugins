@@ -27,7 +27,23 @@ treat an unasked question as a future bug.
 - Use `AskUserQuestion` for concrete choices. When done, summarize the full scope
   back and only proceed once the user confirms nothing is missing.
 
-## 2. Write the plan
+## 2. Review existing plans before writing a new one
+
+Before creating the new plan file, scan the repo-root `plans/` folder (if it
+exists) and triage every existing plan:
+
+- **Fully completed plans** — every phase `Complete` and the **Final Recap**
+  written. Ask the user whether to delete them (list each by name; use
+  `AskUserQuestion`). Delete only the ones the user approves — never delete
+  silently.
+- **Incomplete plans** — any phase not `Complete` or recap missing. **Never
+  offer deletion.** Instead, surface them to the user: name each, note where it
+  stopped, and ask whether that work should be resumed or finished before
+  starting the new plan.
+
+If `plans/` is empty or absent, skip straight to writing the plan.
+
+## 3. Write the plan
 
 Save to `plans/<descriptive-name>.md` in the **repository root** (create `plans/`
 if needed). Use this self-documenting template:
@@ -77,7 +93,7 @@ _(write when all phases complete: summary of the entire piece of work)_
 _(write when all phases complete: step-by-step deployment instructions)_
 ```
 
-## 3. Execute one phase at a time
+## 4. Execute one phase at a time
 
 Execution is **gated per phase**. After completing a phase (items checked,
 verification run, Phase Summary written):
@@ -101,6 +117,11 @@ an explicit grant, the per-phase gate above stays in force.
 
 ## Common mistakes
 
+- **Skipping plan triage** — writing a new plan without checking `plans/` for
+  completed plans to offer for deletion or incomplete plans to surface.
+- **Deleting without asking** — old plans (even fully completed ones) are only
+  deleted with explicit user approval; incomplete plans are never offered for
+  deletion.
 - **Vague items** — each checkbox is a concrete task ("Add retry logic to
   `PaymentClient.Charge`"), not a theme ("improve payments").
 - **Non-autonomous verification** — give runnable commands with expected output,
