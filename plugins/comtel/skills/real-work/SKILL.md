@@ -38,11 +38,17 @@ if needed). Use this self-documenting template:
 <1-2 sentence goal and scope.>
 
 ## For Future Agents
-As work proceeds: mark checkboxes `- [x]` as items complete; when a phase is done,
-set its status to `Complete` and write its **Phase Summary** (what was done, key
-decisions, anything needed to continue with zero context); run the phase's
-**Verification Plan** and record the result before moving on. When all phases are
-done, fill in **Final Recap** and **Deployment Plan**.
+Execute **one phase per turn — never more**. As work proceeds: mark checkboxes
+`- [x]` as items complete; when a phase is done, set its status to `Complete` and
+write its **Phase Summary** (what was done, key decisions, anything needed to
+continue with zero context); run the phase's **Verification Plan** and record the
+result. Then **stop**: do not start the next phase, and do not run `git commit`.
+Instead, suggest a commit message for the completed phase and wait for the user to
+either approve the commit or commit it themselves. Only continue to the next phase
+after the user says to. Exception: if the user explicitly grants permission to run
+multiple phases and/or commit per phase, follow that grant exactly as scoped — but
+never assume it. When all phases are done, fill in **Final Recap** and
+**Deployment Plan**.
 
 ## Phase 1: <Title>
 Status: Not started   <!-- Not started | In progress | Complete -->
@@ -71,6 +77,28 @@ _(write when all phases complete: summary of the entire piece of work)_
 _(write when all phases complete: step-by-step deployment instructions)_
 ```
 
+## 3. Execute one phase at a time
+
+Execution is **gated per phase**. After completing a phase (items checked,
+verification run, Phase Summary written):
+
+1. **Stop.** Do not begin the next phase in the same turn, even if it looks quick
+   or obvious.
+2. **Do not commit.** Never run `git commit` (or `git add` + commit) on your own.
+3. **Suggest a commit message** for the phase's changes and present it to the
+   user.
+4. **Wait.** The user will either tell you to commit (then use the suggested
+   message unless they change it) or commit themselves. Only proceed to the next
+   phase after explicit user go-ahead.
+
+This applies to every phase, including the last one.
+
+**Explicit override only:** the user may grant permission to run multiple phases
+in one go and/or commit after each phase (e.g. "do phases 2–4 and commit each").
+Honor it exactly as scoped — it covers only the phases named and only the current
+session. Never infer this permission from tone, urgency, or past sessions; without
+an explicit grant, the per-phase gate above stays in force.
+
 ## Common mistakes
 
 - **Vague items** — each checkbox is a concrete task ("Add retry logic to
@@ -80,3 +108,7 @@ _(write when all phases complete: step-by-step deployment instructions)_
 - **Wrong location** — always the repo-root `plans/` folder.
 - **Pre-filling summaries** — phase summaries, recap, and deployment plan stay as
   placeholders until that work actually completes.
+- **Running ahead** — executing multiple phases in one turn instead of stopping
+  after each phase for user review.
+- **Auto-committing** — committing after a phase instead of suggesting a commit
+  message and waiting for the user.
