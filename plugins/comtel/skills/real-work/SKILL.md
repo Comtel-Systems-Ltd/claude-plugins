@@ -64,7 +64,9 @@ either approve the commit or commit it themselves. Only continue to the next pha
 after the user says to. Exception: if the user explicitly grants permission to run
 multiple phases and/or commit per phase, follow that grant exactly as scoped — but
 never assume it. When all phases are done, fill in **Final Recap** and
-**Deployment Plan**.
+**Deployment Plan**. Never reference this plan in code: the plan file is deleted
+when the work is done, so comments like "Phase 2 of the plan" or "see
+plans/foo.md" become dead references — code comments must stand on their own.
 
 ## Phase 1: <Title>
 Status: Not started   <!-- Not started | In progress | Complete -->
@@ -109,6 +111,12 @@ verification run, Phase Summary written):
 
 This applies to every phase, including the last one.
 
+**Keep the plan out of the code.** The plan file is a temporary artifact —
+deleted once the work completes. Never reference it from code: no comments like
+`// Phase 3: add retry logic`, `// see plans/payment-rework.md`, or `// per the
+plan`. Write comments that explain the code on its own terms; the same goes for
+identifiers, commit-adjacent notes, and docs that outlive the plan.
+
 **Explicit override only:** the user may grant permission to run multiple phases
 in one go and/or commit after each phase (e.g. "do phases 2–4 and commit each").
 Honor it exactly as scoped — it covers only the phases named and only the current
@@ -133,3 +141,6 @@ an explicit grant, the per-phase gate above stays in force.
   after each phase for user review.
 - **Auto-committing** — committing after a phase instead of suggesting a commit
   message and waiting for the user.
+- **Plan references in code** — comments, names, or docs pointing at the plan
+  file or its phases ("Phase 2", "see plans/x.md"); the plan is deleted at the
+  end, leaving dead references.
