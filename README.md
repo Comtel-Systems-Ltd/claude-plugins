@@ -16,6 +16,18 @@ Skills become available namespaced, e.g. `/comtel:diptrace`.
 | Skill | Purpose |
 |-------|---------|
 | `diptrace` | Read DipTrace schematics: KiCad netlist (`.net`) workflow, `.asc`/XML parsers, format gotchas. See its `SKILL.md`. |
+| `real-work` | Durable, resumable plan artifacts: phases, per-item checkboxes, verification, handoff summary. |
+
+## Statusline
+
+`statusline/` holds the custom Claude Code statusline (model · context · effort · path · git · caveman badge).
+Not part of the plugin — install per machine:
+
+```powershell
+.\statusline\install.ps1
+```
+
+See `statusline/README.md`.
 
 ## Updating
 
