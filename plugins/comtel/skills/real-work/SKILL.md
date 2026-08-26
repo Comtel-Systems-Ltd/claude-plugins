@@ -67,6 +67,10 @@ never assume it. When all phases are done, fill in **Final Recap** and
 **Deployment Plan**. Never reference this plan in code: the plan file is deleted
 when the work is done, so comments like "Phase 2 of the plan" or "see
 plans/foo.md" become dead references — code comments must stand on their own.
+When you write prose, tables or examples under a `- [ ]` item, indent them **two
+spaces** — the item's content column. Six spaces (aligning under the text after
+the checkbox) is an indented code block: after a blank line it silently renders
+your paragraph or table as raw source.
 
 ## Phase 1: <Title>
 Status: Not started   <!-- Not started | In progress | Complete -->
@@ -94,6 +98,53 @@ _(write when all phases complete: summary of the entire piece of work)_
 ## Deployment Plan
 _(write when all phases complete: step-by-step deployment instructions)_
 ```
+
+### Indentation inside checkbox items
+
+Plans are read in a Markdown viewer, and one indentation rule breaks more of them
+than everything else combined.
+
+**Continuation content under a `- [ ]` item indents two spaces, never six.** The
+`- ` marker puts the item's content column at 2. The `[ ] ` checkbox is *content*,
+not part of the marker, so aligning under the text after it lands four columns
+past the content column — which is an indented code block. It misbehaves only
+after a blank line, because indented code cannot interrupt a paragraph; a plan
+therefore looks correct for pages and then turns one Phase Summary paragraph, or
+one table, into a wall of raw source. GitHub and every CommonMark viewer agree on
+this, so it is not something a nicer viewer will fix.
+
+Wrong — everything after the blank line renders as monospace source:
+
+```markdown
+- [x] Driver verified on the bench.
+
+      **Read timing.** Steady state, discarding the first read:
+
+      | NPLC | per read |
+      |---|---|
+      | 10 | 0.201 s |
+```
+
+Right:
+
+```markdown
+- [x] Driver verified on the bench.
+
+  **Read timing.** Steady state, discarding the first read:
+
+  | NPLC | per read |
+  |---|---|
+  | 10 | 0.201 s |
+```
+
+This bites hardest when **resuming** a plan: the phase items were written at the
+right indent, and a later agent appends evidence under one of them at what looks
+like the aligned column. Check the indent of anything you add to an existing
+plan against the item above it, not against the checkbox text.
+
+Related: prefer fenced blocks with a language (```` ```powershell ````) over
+indented code anywhere in a plan. A fence is explicit, so an accidental indent
+can never turn prose into code by mistake.
 
 ## 4. Execute one phase at a time
 
@@ -144,3 +195,7 @@ an explicit grant, the per-phase gate above stays in force.
 - **Plan references in code** — comments, names, or docs pointing at the plan
   file or its phases ("Phase 2", "see plans/x.md"); the plan is deleted at the
   end, leaving dead references.
+- **Six-space continuation under a checkbox** — content added under a `- [ ]`
+  item at the column the checkbox text starts on, which is an indented code
+  block. Invisible until a blank line precedes it, then the paragraph or table
+  renders as raw source. Two spaces, always.
