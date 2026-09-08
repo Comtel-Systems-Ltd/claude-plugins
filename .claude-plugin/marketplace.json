@@ -8,6 +8,11 @@
       "name": "comtel",
       "source": "./plugins/comtel",
       "description": "Comtel Systems engineering skills: DipTrace schematic reading, hardware workflows."
+    },
+    {
+      "name": "claude-taskbar",
+      "source": "./plugins/claude-taskbar",
+      "description": "Windows only: Claude logo on the Windows Terminal taskbar button while a Claude Code session runs."
     }
   ]
 }

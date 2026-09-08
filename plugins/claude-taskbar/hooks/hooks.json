@@ -1,0 +1,18 @@
+{
+  "description": "Start the taskbar-icon helper for this Claude Code session (Windows only).",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/scripts/taskbar-start.ps1\"",
+            "async": true,
+            "timeout": 20,
+            "statusMessage": "Starting taskbar icon"
+          }
+        ]
+      }
+    ]
+  }
+}

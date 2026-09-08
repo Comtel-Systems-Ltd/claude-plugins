@@ -1,0 +1,8 @@
+{
+  "name": "claude-taskbar",
+  "version": "1.0.0",
+  "description": "Windows only. Gives the Windows Terminal window hosting a Claude Code session its own taskbar button with the Claude logo, for as long as the session is running.",
+  "author": {
+    "name": "Comtel Systems Ltd."
+  }
+}

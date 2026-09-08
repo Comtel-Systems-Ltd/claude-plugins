@@ -7,6 +7,7 @@ Claude Code plugin marketplace for Comtel Systems engineering skills.
 ```
 /plugin marketplace add <github-owner>/claude-plugins
 /plugin install comtel@comtel-systems
+/plugin install claude-taskbar@comtel-systems   # Windows only
 ```
 
 Skills become available namespaced, e.g. `/comtel:diptrace`.
@@ -17,6 +18,12 @@ Skills become available namespaced, e.g. `/comtel:diptrace`.
 |-------|---------|
 | `diptrace` | Read DipTrace schematics: KiCad netlist (`.net`) workflow, `.asc`/XML parsers, format gotchas. See its `SKILL.md`. |
 | `real-work` | Durable, resumable plan artifacts: phases, per-item checkboxes, verification, handoff summary. |
+
+## claude-taskbar (Windows)
+
+Gives the Windows Terminal window hosting a Claude Code session its own taskbar
+button with the Claude logo while the session runs. A `SessionStart` hook, no
+configuration. See `plugins/claude-taskbar/README.md`.
 
 ## Statusline
 
