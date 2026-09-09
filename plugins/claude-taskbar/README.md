@@ -38,6 +38,10 @@ Terminal profile named **Claude Code** is worth having:
 - The helper polls every 1.5 s. While `claude.exe` is alive it stamps the
   Terminal window (only the one whose title looks like a Claude session when
   several are open). When `claude.exe` exits it clears the stamp and quits.
+- When `claude.exe` was started outside Windows Terminal (shortcut, Run box)
+  and Terminal picked it up as the default terminal, Terminal is COM-activated
+  and not in the process tree. The helper then scans every Terminal window and
+  stamps the ones whose title looks like a Claude session.
 - Optional notification-area icon: set `CLAUDE_TASKBAR_TRAY_ICON=1` (for
   example under `env` in `~/.claude/settings.json`).
 

@@ -91,19 +91,27 @@ $Relaunch = "`"$WtExe`" -p `"Claude Code`""
 $ClaudeTitle = '^[\u2733\u273B\u273D\u2736\u2722\u00B7\u25D0-\u25D3]\s|Claude'
 $script:stamped = @{}
 
+function Get-WtPids {
+    if ($WtPid) { return @($WtPid) }
+    # Default-terminal handoff: WindowsTerminal.exe is COM-activated (-Embedding) and never an
+    # ancestor of claude.exe, so the launcher passes WtPid 0. Scan every Terminal instead.
+    @(Get-Process WindowsTerminal -ErrorAction SilentlyContinue | ForEach-Object { $_.Id })
+}
+
 function Update-Taskbar {
-    if (-not $WtPid) { return }
     try {
-        $wins = [ClaudeTaskbar]::TerminalWindows([uint32]$WtPid)
-        if ($wins.Count -eq 0) { return }
-        # One window: it must be ours. Several: only those whose title looks like Claude.
-        $targets = if ($wins.Count -eq 1) { $wins } else { $wins | Where-Object { $_.Title -match $ClaudeTitle } }
-        foreach ($w in $targets) {
-            # Re-stamp if missing or pointing at an old icon path (e.g. after a plugin update).
-            if (-not [ClaudeTaskbar]::IsStamped($w.Handle, $AppId, $AppIcon)) {
-                [ClaudeTaskbar]::Stamp($w.Handle, $AppId, $AppIcon, $AppName, $Relaunch)
+        foreach ($id in Get-WtPids) {
+            $wins = [ClaudeTaskbar]::TerminalWindows([uint32]$id)
+            if ($wins.Count -eq 0) { continue }
+            # Known host with one window: it must be ours. Otherwise only windows whose title looks like Claude.
+            $targets = if ($WtPid -and $wins.Count -eq 1) { $wins } else { $wins | Where-Object { $_.Title -match $ClaudeTitle } }
+            foreach ($w in $targets) {
+                # Re-stamp if missing or pointing at an old icon path (e.g. after a plugin update).
+                if (-not [ClaudeTaskbar]::IsStamped($w.Handle, $AppId, $AppIcon)) {
+                    [ClaudeTaskbar]::Stamp($w.Handle, $AppId, $AppIcon, $AppName, $Relaunch)
+                }
+                $script:stamped[$w.Handle] = $true
             }
-            $script:stamped[$w.Handle] = $true
         }
     } catch {}
 }
