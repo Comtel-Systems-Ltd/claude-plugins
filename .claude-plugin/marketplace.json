@@ -17,7 +17,7 @@
     {
       "name": "session-timesheet",
       "source": "./plugins/session-timesheet",
-      "description": "Timestamps each reply on screen and reports prompt/reply timings from past sessions for client billing. Needs jq."
+      "description": "Shows when each prompt was sent and each reply finished, in the transcript's right margin, and reports session timings for client billing. Context hooks need jq."
     }
   ]
 }
