@@ -13,6 +13,11 @@
       "name": "claude-taskbar",
       "source": "./plugins/claude-taskbar",
       "description": "Windows only: Claude logo on the Windows Terminal taskbar button while a Claude Code session runs."
+    },
+    {
+      "name": "session-timesheet",
+      "source": "./plugins/session-timesheet",
+      "description": "Timestamps each reply on screen and reports prompt/reply timings from past sessions for client billing. Needs jq."
     }
   ]
 }

@@ -1,0 +1,41 @@
+{
+  "description": "Timestamp each reply on screen, and tell Claude when the session and each prompt started.",
+  "hooks": {
+    "MessageDisplay": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq",
+            "args": ["-c", "-f", "${CLAUDE_PLUGIN_ROOT}/hooks/stamp.jq"],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq",
+            "args": ["-c", "-f", "${CLAUDE_PLUGIN_ROOT}/hooks/prompt-time.jq"],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq",
+            "args": ["-n", "-c", "-f", "${CLAUDE_PLUGIN_ROOT}/hooks/session-time.jq"],
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

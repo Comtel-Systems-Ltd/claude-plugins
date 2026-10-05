@@ -1,0 +1,8 @@
+{
+  "name": "session-timesheet",
+  "version": "1.0.0",
+  "description": "Prefixes each assistant reply on screen with the local time it finished, and reports prompt/reply timings from past sessions for client billing.",
+  "author": {
+    "name": "Comtel Systems Ltd."
+  }
+}
