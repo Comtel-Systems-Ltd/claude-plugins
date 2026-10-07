@@ -1,6 +1,6 @@
 {
   "name": "session-timesheet",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Shows when each prompt was sent and each reply finished, in the right margin of the transcript, tells Claude when prompts arrive, and reports session timings for client billing.",
   "author": {
     "name": "Comtel Systems Ltd."

@@ -2,8 +2,9 @@
 
 For billing client time without keeping notes by hand:
 
-- **On screen** — each prompt shows when it was sent and each reply when it finished,
-  in the right margin on the message's last line. Prompts grey, replies a muted Claude orange.
+- **On screen** — each prompt shows when it was sent, in the right margin on its last line,
+  and each reply when it finished, right-aligned on its own line under the reply. Prompts
+  grey, replies a muted Claude orange.
 - **In context** — Claude is told when the session and each prompt started, so it can
   answer "how long did that take" directly.
 - **After the fact** — a report that rebuilds the timeline of a past session: prompt
@@ -27,9 +28,12 @@ A function-hook module, run in-process, so a redraw costs no process spawn.
 
 - `prompt.submit` records when each prompt you typed was sent.
 - `turn.complete` records when each main-loop turn finished, keyed by its final answer.
-- `ui.render` on `UserMessage` and `AssistantMessage` wraps the engine's own row in a
-  row Box with the time at the right. The reply's time goes on its final text block, the
-  one the turn's answer opens.
+- `ui.render` on `UserMessage` wraps the engine's own row in a row Box with the time at
+  the right.
+- `ui.render` on `AssistantMessage` wraps it in a column Box with the time on a
+  right-aligned line underneath: beside the row the time would take the reply's width, and
+  full-width tables would wrap. The reply's time goes on its final text block, the one the
+  turn's answer opens.
 
 Rows carry no timestamp, so a row is matched to its record by the first 40 characters of
 its text. That is what lets a prompt with a paste still match: the stored text has the
@@ -37,8 +41,9 @@ paste expanded while the row shows it as typed. Two messages opening identically
 the newer time. Messages from before the plugin loaded have no record and draw unstamped.
 
 The engine refuses its row inside a Box that sizes it — `width` included — and draws its
-own instead. That is why the layout is `justifyContent="space-between"` with
-`alignItems="flex-end"` and nothing else. The tests stand in for the engine with a real
+own instead. That is why the layouts use flex direction and justification only
+(`space-between` + `alignItems="flex-end"` for prompts, a column with a `flex-end` line
+for replies) and never a width. The tests stand in for the engine with a real
 engine node, so they catch that refusal:
 
 ```

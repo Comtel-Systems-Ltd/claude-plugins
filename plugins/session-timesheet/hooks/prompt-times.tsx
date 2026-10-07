@@ -77,6 +77,8 @@ export const register: Register = on => {
     )
   })
 
+  // Replies get their own line for the time: beside the row it would take the reply's
+  // width, and full-width tables in the reply would wrap.
   on('ui.render', { component: 'AssistantMessage' }, async ($, e, next) => {
     const row = await next(e)
 
@@ -88,9 +90,11 @@ export const register: Register = on => {
     const { Box, Text } = $.ui.resolve(e)
 
     return (
-      <Box flexDirection="row" justifyContent="space-between" alignItems="flex-end">
+      <Box flexDirection="column">
         {row}
-        <Text {...REPLY_STYLE}>{clock(at)}</Text>
+        <Box flexDirection="row" justifyContent="flex-end">
+          <Text {...REPLY_STYLE}>{clock(at)}</Text>
+        </Box>
       </Box>
     )
   })

@@ -105,8 +105,8 @@ test('a reply shows when its turn finished, on its final block only', async ($, 
     expect(time?.text).toBe(new Date(SENT).toTimeString().slice(0, 8))
     expect(time?.props.color).toBe('#A9826D')
     expect(await last.find({ type: 'engine' })).toBeDefined()
-    // On the block's last line, not its first.
-    expect((await last.find({ type: 'Box' }))?.props.alignItems).toBe('flex-end')
+    // On its own line under the block, so the reply keeps the full width.
+    expect((await last.find({ type: 'Box' }))?.props.flexDirection).toBe('column')
     await last.unmount()
 
     const earlier = await $.ui.mount({
