@@ -8,8 +8,8 @@ Segments: model · context usage · effort · path · git branch/status · cavem
 Opus 5  |  ctx 71k/1M 7%  |  effort high  |  D:/GIT/Comtel/claude-plugins  |  git:main*  |  [CAVEMAN]
 ```
 
-- Context window is inferred from the model id (`1m` tag or any `fable` model → 1M, else 200k), coloured green/yellow/red by fill.
-- Context + effort come from the session transcript tail — the statusline stdin JSON does not carry them.
+- Context window, usage and effort come from the statusline stdin JSON (`context_window`, `effort`; Claude Code 2.1+). Coloured green/yellow/red by fill.
+- Older Claude Code versions don't send those: the script then reads the session transcript tail (last 1 MB only, lines over 256 kB skipped — `Get-Content -Tail` in Windows PowerShell 5.1 took minutes on transcripts holding images and pinned a core on every refresh) and infers the window from the model id (`1m` tag or any `fable` model → 1M), or from usage (> 200k → 1M), else 200k. `CLAUDE_CTX_WINDOW` overrides the inference.
 - Git segment shows the branch (or short SHA on detached HEAD) with `*` when dirty.
 - Caveman badge appears when `~/.claude/.caveman-active` holds a valid mode.
 - Fails soft: any error prints what it has and exits 0, so the prompt never breaks.

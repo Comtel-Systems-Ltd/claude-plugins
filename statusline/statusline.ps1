@@ -1,8 +1,9 @@
 #Requires -Version 5.1
 <#  Claude Code custom statusline.
     Shows: model · context usage · effort · path · git branch/status · caveman badge.
-    Reads the Status hook JSON from stdin; pulls live context/effort from the
-    session transcript tail (statusline stdin does not carry those). Fails soft:
+    Reads the Status hook JSON from stdin, including context_window and effort
+    (Claude Code 2.1+); older versions lack those, so it falls back to the
+    session transcript tail. Fails soft:
     on any error it prints what it has and exits 0 so the prompt never breaks. #>
 
 $ErrorActionPreference = 'Stop'
@@ -12,6 +13,28 @@ $Esc = [char]27
 function Colorize {
     param([string]$Code, [string]$Text)
     return "${Esc}[${Code}m${Text}${Esc}[0m"
+}
+
+# Last lines of a file, read from its final $Bytes only. Get-Content -Tail in
+# Windows PowerShell 5.1 is pathologically slow on multi-MB lines (base64 images
+# in tool results), and a status line run that never finishes pins a core.
+function Read-TailLines {
+    param([string]$Path, [int]$Bytes)
+    $fs = [System.IO.File]::Open($Path, 'Open', 'Read', 'ReadWrite')
+    try {
+        $start = [math]::Max([int64]0, $fs.Length - $Bytes)
+        [void]$fs.Seek($start, 'Begin')
+        $buf = New-Object byte[] ($fs.Length - $start)
+        $n = $fs.Read($buf, 0, $buf.Length)
+        $text = [System.Text.Encoding]::UTF8.GetString($buf, 0, $n)
+    } finally {
+        $fs.Dispose()
+    }
+    $lines = $text -split "`n"
+    if ($start -gt 0) {
+        $lines = @($lines | Select-Object -Skip 1)  # first line is partial
+    }
+    return ,$lines
 }
 
 # --- Read + parse stdin JSON ------------------------------------------------
@@ -38,18 +61,42 @@ if ($null -ne $json -and $null -ne $json.model) {
 $ctxWindow = 200000
 if ($modelId -match '1m' -or $modelName -match '1M' -or $modelId -match 'fable' -or $modelName -match 'fable') { $ctxWindow = 1000000 }
 
-# --- Context + effort from transcript tail ----------------------------------
+# --- Context + effort ------------------------------------------------------
+# stdin carries both on Claude Code 2.1+: context_window.context_window_size is
+# the real window (a 1M session reports a bare model id, so the id can't tell).
 $ctxTokens = $null
+$ctxWindowKnown = $false
 $effort = $null
+if ($null -ne $json -and $null -ne $json.context_window) {
+    $cw = $json.context_window
+    if ($cw.context_window_size) {
+        $ctxWindow = [int64]$cw.context_window_size
+        $ctxWindowKnown = $true
+    }
+    $cu = $cw.current_usage
+    if ($null -ne $cu) {
+        $ctxTokens = [int64]$cu.input_tokens + [int64]$cu.cache_creation_input_tokens + [int64]$cu.cache_read_input_tokens
+    }
+}
+if ($null -ne $json -and $null -ne $json.effort) {
+    if ($json.effort -is [string]) {
+        $effort = [string]$json.effort
+    } elseif ($json.effort.level) {
+        $effort = [string]$json.effort.level
+    }
+}
+
+# Fallback for older Claude Code: context + effort from the transcript tail.
 $transcript = $null
 if ($null -ne $json -and $json.transcript_path) { $transcript = [string]$json.transcript_path }
 
-if ($transcript -and (Test-Path -LiteralPath $transcript)) {
+if (($null -eq $ctxTokens -or -not $effort) -and $transcript -and (Test-Path -LiteralPath $transcript)) {
     try {
-        $tail = Get-Content -LiteralPath $transcript -Tail 250 -ErrorAction Stop
+        $tail = Read-TailLines -Path $transcript -Bytes 1MB
         for ($i = $tail.Count - 1; $i -ge 0; $i--) {
             $line = $tail[$i]
             if ([string]::IsNullOrWhiteSpace($line)) { continue }
+            if ($line.Length -gt 262144) { continue }  # usage lines are small; skip image blobs
             if ($line -notmatch '"usage"') { continue }
             try {
                 $obj = $line | ConvertFrom-Json
@@ -62,14 +109,15 @@ if ($transcript -and (Test-Path -LiteralPath $transcript)) {
             $inp = [int64]($u.input_tokens)
             $cc  = [int64]($u.cache_creation_input_tokens)
             $cr  = [int64]($u.cache_read_input_tokens)
-            $ctxTokens = $inp + $cc + $cr
-            if ($obj.effort) { $effort = [string]$obj.effort }
+            if ($null -eq $ctxTokens) { $ctxTokens = $inp + $cc + $cr }
+            if (-not $effort -and $obj.effort) { $effort = [string]$obj.effort }
             break
         }
         # Effort may live on a newer line than the last usage-bearing one.
         if (-not $effort) {
             for ($i = $tail.Count - 1; $i -ge 0; $i--) {
                 $line = $tail[$i]
+                if ($line.Length -gt 262144) { continue }
                 if ($line -notmatch '"effort"') { continue }
                 try { $obj = $line | ConvertFrom-Json } catch { continue }
                 if ($obj.effort) { $effort = [string]$obj.effort; break }
@@ -88,6 +136,19 @@ $parts += Colorize '38;5;39' $modelName
 
 # Context — green/yellow/red by fill
 if ($null -ne $ctxTokens) {
+    # The hook's model id does not reliably carry a 1M marker: a 1M session can
+    # report plain "claude-opus-5". Observed usage is the honest signal, since a
+    # session cannot hold more tokens than its window - anything past 200k is
+    # necessarily on the larger one. Without this the percentage reads 5x high.
+    # CLAUDE_CTX_WINDOW overrides both, for the case where a 1M session is still
+    # under 200k used and neither heuristic can tell.
+    # Both heuristics apply only when stdin gave no window size (older versions).
+    if (-not $ctxWindowKnown) {
+        if ($ctxTokens -gt 200000) { $ctxWindow = 1000000 }
+        if ($env:CLAUDE_CTX_WINDOW) {
+            try { $ctxWindow = [int]$env:CLAUDE_CTX_WINDOW } catch { }
+        }
+    }
     $pct = [int][math]::Round(($ctxTokens / $ctxWindow) * 100)
     $usedK = [int][math]::Round($ctxTokens / 1000)
     $winLabel = if ($ctxWindow -ge 1000000) { "$([int]($ctxWindow / 1000000))M" } else { "$([int]($ctxWindow / 1000))k" }
